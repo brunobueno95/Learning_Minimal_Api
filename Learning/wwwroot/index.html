@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+
+    <script>
+        //Model
+        function Input(Todo, Isdone) {
+            this.id = Math.floor(Math.random() * 20320)
+            this.todo = Todo,
+                this.isdone = Isdone
+        }
+
+        model = {
+            input: null,
+
+         
+        }
+
+        //View
+        getData();
+        function UpdateView() {
+            let html = "";
+            html += DrawList();
+            html += `Write your To do : <input type="text" oninput="model.input = new Input(); model.input.todo= this.value">
+            done <input type="radio"  onchange="model.input.isdone = true" name= "doneOrNot">
+            Not done yet <input type="radio" onchange="model.input.isdone = false" name= "doneOrNot">
+            <button onclick="AddToList()">Send</button>`
+            document.getElementById("app").innerHTML = html;
+        }
+
+
+
+
+        function DrawList() {
+            let html = "";
+            html += `<ul>`
+            model.Default.forEach(td => html += `<li>${td.todo} IsDone : ${td.isdone}</li> <button onclick ="Delete('${td.id}' )">X</button> <button onclick ="ChangeIsDone('${td.id}' )"> Edit status</button>`);
+            html += `</ul>`
+            return html;
+        }
+
+
+
+        //Controler
+        async function getData() {
+            const response = await axios.get('/todo');
+            model.Default = response.data;
+            UpdateView();
+        }
+
+        async function AddToList() {
+            const TodoI = {
+                todo : model.input.todo,
+                isdone : model.input.isdone,
+                }
+            const response = await axios.post('/todo', TodoI);
+           await getData();
+        }
+
+        async function Delete(identification) {
+            //let ObjToDeleteIndex = model.Default.findIndex(td => td.id == identification);
+            //model.Default.splice(ObjToDeleteIndex, 1);
+            const response = await axios.delete('/todo/' + identification);
+            await getData();
+        }
+
+       async function ChangeIsDone(identification) {
+            
+           
+           const response = await axios.put('/todo/'+ identification);
+
+            await getData();
+
+        }
+
+
+    </script>
+</body>
+</html>
